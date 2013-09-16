@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 #
-# single_acquisition_example.py
+# acquire_pmt_data.py
 #
-# Acquisition of single triggerred waveform data from a Tektronix scope.
+# Acquisition of PMT data from the Sussex setup.
 # Data is saved to a hdf5 file.
 #
 # Author P G Jones - 2013-09-16 <p.g.jones@qmul.ac.uk> : First revision
@@ -62,7 +62,7 @@ def acquire_pmt_data(name, acquisition_time, trigger, trigger_channel, ymult):
             results.auto_save()
             last_save_time = time.time()
     results.save()
-    print "Finished at", time.strftime("%Y-%m-%d %H:%M:%S")
+    print "\nFinished at", time.strftime("%Y-%m-%d %H:%M:%S")
 
 if __name__ == "__main__":
     parser = optparse.OptionParser(usage = "usage: %prog name acquisition_time channel")
@@ -73,4 +73,4 @@ if __name__ == "__main__":
         print "Incorrect number of arguments"
         parser.print_help()
         exit(0)
-    acquire_pmt_data(args[0], int(args[1]) * 60, int(args[2]), options.trigger, options.ymult)
+    acquire_pmt_data(args[0], int(args[1]) * 60, options.trigger, int(args[2]), options.ymult)
