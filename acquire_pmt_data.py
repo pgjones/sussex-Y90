@@ -56,16 +56,16 @@ def acquire_pmt_data(name, acquisition_time, trigger, trigger_channel, ymult):
             print "Serious death"
             time.wait(1)
         print "|",
-        if num_events % 5 == 0:
-            print "_",
-        if time.time()-last_save_time > 60 * 60: # I.e. one hour
-            results.auto_save()
+        if num_events % 20 == 0:
+            print "x"
+        if time.time() - last_save_time > 60.0 * 60.0: # I.e. one hour
+            results.autosave()
             last_save_time = time.time()
     results.save()
     print "\nFinished at", time.strftime("%Y-%m-%d %H:%M:%S")
 
 if __name__ == "__main__":
-    parser = optparse.OptionParser(usage = "usage: %prog name acquisition_time channel")
+    parser = optparse.OptionParser(usage = "usage: %prog name acquisition_time(s) channel")
     parser.add_option("-t", type="float", dest="trigger", help="Trigger level", default=-0.004)
     parser.add_option("-y", type="float", dest="ymult", help="Y Mult", default=100e-3)
     (options, args) = parser.parse_args()
