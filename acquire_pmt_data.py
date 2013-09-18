@@ -14,7 +14,7 @@ import utils
 import datetime
 from pyvisa.vpp43 import visa_exceptions
 
-def acquire_pmt_data(name, acquisition_time, trigger, trigger_channel, ymult):
+def acquire_pmt_data(name, acquisition_time, trigger, trigger_channel, y_scale):
     """ Acquire Sussex PMT data."""
     tek_scope = scopes.Tektronix2000(scope_connections.VisaUSB())
     # First setup the scope, lock the front panel
@@ -25,12 +25,12 @@ def acquire_pmt_data(name, acquisition_time, trigger, trigger_channel, ymult):
     tek_scope.set_edge_trigger(trigger, trigger_channel, True) # Falling edge trigger
     tek_scope.set_channel_coupling(1, "ac")
     tek_scope.set_channel_coupling(2, "ac")
-    tek_scope.set_channel_y(1, ymult, -2.0)
-    tek_scope.set_channel_y(2, ymult, -2.0)
     tek_scope.set_invert_channel(1)
     tek_scope.set_invert_channel(2)
     tek_scope.set_data_mode(49500, 50500)
-    tek_scope.lock() # Re acquires the preamble
+    tek_scope.set_channel_y(1, y_scale)
+    tek_scope.set_channel_y(2, y_scale)
+    tek_scope.begin()
     # Now create a HDF5 file and save the meta information
     file_name = name + "_" + str(datetime.date.today())
     results = utils.HDF5File(file_name, 2)
@@ -40,6 +40,7 @@ def acquire_pmt_data(name, acquisition_time, trigger, trigger_channel, ymult):
     results.add_meta_data("ch2_timeform", tek_scope.get_timeform(2))
     results.add_meta_dict(tek_scope.get_preamble(1), "ch1_")
     results.add_meta_dict(tek_scope.get_preamble(2), "ch2_")
+    print tek_scope.get_preamble(1)["YMULT"], tek_scope.get_preamble(2)["YMULT"], 
 
     last_save_time = datetime.datetime.now()
     start_time = datetime.datetime.now()
@@ -71,7 +72,7 @@ def acquire_pmt_data(name, acquisition_time, trigger, trigger_channel, ymult):
 if __name__ == "__main__":
     parser = optparse.OptionParser(usage = "usage: %prog name acquisition_time(m) channel")
     parser.add_option("-t", type="float", dest="trigger", help="Trigger level", default=-0.004)
-    parser.add_option("-y", type="float", dest="ymult", help="Y Mult", default=100e-3)
+    parser.add_option("-y", type="float", dest="ymult", help="Y Mult", default=4e-3)
     (options, args) = parser.parse_args()
     if len(args) != 3:
         print "Incorrect number of arguments"
