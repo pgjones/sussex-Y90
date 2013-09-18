@@ -17,23 +17,28 @@ results.load()
 data = { 1 : results.get_data(1), 2 : results.get_data(2) }
 timeform_1 = results.get_meta_data("ch1_timeform")
 timeform_2 = results.get_meta_data("ch2_timeform")
-bin_width = results.get_meta_data("ch1_YMULT") * 2.0
 
-domain = (-0.1, 0.5)
+ymult = results.get_meta_data("ch1_YMULT")
+bin_width = ymult / 10.0
+domain = ( -10.0 * ymult, 10.0 * ymult)
+
 int_1 = ROOT.TH1D("int1", "int", int((domain[1] - domain[0]) / bin_width), domain[0], domain[1])
 int_2 = ROOT.TH1D("int2", "int", int((domain[1] - domain[0]) / bin_width), domain[0], domain[1])
 units = (results.get_meta_data("ch1_YUNIT"), "count")
-
+scaling_1 = {"yoffset" : results.get_meta_data("ch1_YOFF"), "yzero" : results.get_meta_data("ch1_YZERO"), 
+             "ymult" : results.get_meta_data("ch1_YMULT")}
+scaling_2 = {"yoffset" : results.get_meta_data("ch2_YOFF"), "yzero" : results.get_meta_data("ch2_YZERO"), 
+             "ymult" : results.get_meta_data("ch2_YMULT")}
 
 num_events = 0
 for ch1, ch2 in zip(data[1], data[2]):
     num_events += 1
-    hist_1 = root_utils.waveform_to_hist(timeform_1, ch1, units)
-    hist_2 = root_utils.waveform_to_hist(timeform_2, ch2, units)
+    hist_1 = root_utils.waveform_to_hist(timeform_1, ch1, units, scaling_1)
+    hist_2 = root_utils.waveform_to_hist(timeform_2, ch2, units, scaling_2)
     hist_2.SetLineColor(ROOT.kRed)
     zero_bin = hist_1.GetXaxis().FindBin(0.0)
-    max_1 = 0.0
-    max_2 = 0.0
+    max_1 = hist_1.GetBinContent(zero_bin)
+    max_2 = hist_2.GetBinContent(zero_bin)
     for iBin in range(zero_bin - 20, zero_bin + 20):
         max_1 = max(hist_1.GetBinContent(iBin), max_1)
         max_2 = max(hist_2.GetBinContent(iBin), max_2)
