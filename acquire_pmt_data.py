@@ -12,10 +12,16 @@ import scopes
 import scope_connections
 import utils
 import datetime
+import time
+import math
 from pyvisa.vpp43 import visa_exceptions
 
 def acquire_pmt_data(name, acquisition_time, trigger, trigger_channel, y_scale):
     """ Acquire Sussex PMT data."""
+    # The minimum trigger level is a 25th of the y_scale
+    if math.fabs(trigger) < y_scale / 25.0:
+        trigger = y_scale / 25.0
+        print "Trigger changed to", trigger
     tek_scope = scopes.Tektronix2000(scope_connections.VisaUSB())
     # First setup the scope, lock the front panel
     tek_scope.lock()
@@ -40,10 +46,10 @@ def acquire_pmt_data(name, acquisition_time, trigger, trigger_channel, y_scale):
     results.add_meta_data("ch2_timeform", tek_scope.get_timeform(2))
     results.add_meta_dict(tek_scope.get_preamble(1), "ch1_")
     results.add_meta_dict(tek_scope.get_preamble(2), "ch2_")
-    print tek_scope.get_preamble(1)["YMULT"], tek_scope.get_preamble(2)["YMULT"], 
 
     last_save_time = datetime.datetime.now()
     start_time = datetime.datetime.now()
+    heartbeat = datetime.datetime.now()
     acquisition_delta = datetime.timedelta(seconds=acquisition_time)
     num_events = 0
     print "Starting data taking at time", start_time.strftime("%Y-%m-%d %H:%M:%S")
@@ -53,16 +59,17 @@ def acquire_pmt_data(name, acquisition_time, trigger, trigger_channel, y_scale):
         try:
             results.add_data(tek_scope.get_waveform(1), 1)
             results.add_data(tek_scope.get_waveform(2), 2)
+        except visa_exceptions.VisaIOError, e:
+            print "Serious death"
+            time.sleep(10)
         except Exception, e:
             print "Scope died, acquisition lost."
             print e
-        except visa_exceptions.VisaIOError, e:
-            print "Serious death"
-            time.wait(1)
-        print "|",
-        if num_events % 50 == 0:
-            print "x", tek_scope.get_trigger_frequency()
-        if datetime.datetime.now() - last_save_time > datetime.timedelta(hours=1):
+            time.sleep(10)
+        if datetime.datetime.now() - heartbeat > datetime.timedelta(minutes=1):
+            print datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "Acquired %i events, current frequency is %f" % (num_events, tek_scope.get_trigger_frequency())
+            heartbeat = datetime.datetime.now()
+        if datetime.datetime.now() - last_save_time > datetime.timedelta(minutes=10):
             results.autosave()
             last_save_time = datetime.datetime.now()
     results.save()
