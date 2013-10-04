@@ -14,10 +14,12 @@ import utils
 import datetime
 import time
 import math
+import logging
 from pyvisa.vpp43 import visa_exceptions
 
 def acquire_pmt_data(name, acquisition_time, trigger, trigger_channel, y_scale):
     """ Acquire Sussex PMT data."""
+    logging.basicConfig(filename=name + ".log", level=logging.DEBUG)
     # The minimum trigger level is a 25th of the y_scale
     if math.fabs(trigger) < y_scale / 25.0:
         trigger = y_scale / 25.0
@@ -60,13 +62,17 @@ def acquire_pmt_data(name, acquisition_time, trigger, trigger_channel, y_scale):
             results.add_data(tek_scope.get_waveform(1), 1)
             results.add_data(tek_scope.get_waveform(2), 2)
         except visa_exceptions.VisaIOError, e:
+            logging.exception("acquire")
             print "Serious death"
             time.sleep(10)
         except Exception, e:
+            logging.exception("acquire")
             print "Scope died, acquisition lost."
             print e
             time.sleep(10)
         if datetime.datetime.now() - heartbeat > datetime.timedelta(minutes=1):
+            logging.info("%s: Acquired %i events, current frequency is %f" % 
+                         (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), num_events, tek_scope.get_trigger_frequency()))
             print datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "Acquired %i events, current frequency is %f" % (num_events, tek_scope.get_trigger_frequency())
             heartbeat = datetime.datetime.now()
         if datetime.datetime.now() - last_save_time > datetime.timedelta(minutes=10):
