@@ -21,6 +21,8 @@ def acquire_pmt_data(name, acquisition_time, trigger, trigger_channel, y_scale):
     # The minimum trigger level is a 25th of the y_scale
     if math.fabs(trigger) < y_scale / 25.0:
         trigger = y_scale / 25.0
+        if trigger < 0.0:
+            trigger = -trigger
         print "Trigger changed to", trigger
     tek_scope = scopes.Tektronix2000(scope_connections.VisaUSB())
     # First setup the scope, lock the front panel
