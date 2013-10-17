@@ -11,6 +11,9 @@ import utils
 import sys
 import root_utils
 
+window_low = -20.0
+window_high = +20.0
+
 file_path = stripfile=sys.argv[1][:len(sys.argv[1])-5]
 results = utils.HDF5File(file_path, 2)
 results.load()
@@ -20,7 +23,7 @@ timeform_2 = results.get_meta_data("ch2_timeform")
 
 ymult = results.get_meta_data("ch1_YMULT")
 #numpy.iinfo("data type").max()
-domain = ( -256.0 * ymult, 256.0 * ymult)
+domain = ( -256.0 * ymult, 256.0 * ymult * (window_high - window_low))
 
 int_1 = ROOT.TH1D("int1", "int", 512, domain[0], domain[1])
 int_2 = ROOT.TH1D("int2", "int", 512, domain[0], domain[1])
@@ -35,7 +38,7 @@ for ch1, ch2 in zip(data[1], data[2]):
     zero_bin = hist_1.GetXaxis().FindBin(0.0)
     sum_1 = 0.0
     sum_2 = 0.0
-    for iBin in range(zero_bin - 20, zero_bin + 20):
+    for iBin in range(zero_bin - window_low, zero_bin + window_high):
         sum_1 += hist_1.GetBinContent(iBin)
         sum_2 += hist_2.GetBinContent(iBin)
     int_1.Fill(sum_1)
