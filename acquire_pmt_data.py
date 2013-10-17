@@ -51,7 +51,7 @@ def acquire_pmt_data(name, acquisition_time, trigger, trigger_channel, y_scale, 
     results.add_meta_dict(tek_scope.get_preamble(1), "ch1_")
     results.add_meta_dict(tek_scope.get_preamble(2), "ch2_")
     for index, volt in enumerate(channel_volts):
-        results.add_meta_data("ch%i_volts" % index + 1, volt)
+        results.add_meta_data("ch%i_volts" % (index + 1), volt)
 
     last_save_time = datetime.datetime.now()
     start_time = datetime.datetime.now()

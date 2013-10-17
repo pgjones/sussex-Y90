@@ -11,8 +11,8 @@ import utils
 import sys
 import root_utils
 
-window_low = -20.0
-window_high = +20.0
+window_low = -20
+window_high = +20
 
 file_path = stripfile=sys.argv[1][:len(sys.argv[1])-5]
 results = utils.HDF5File(file_path, 2)
@@ -38,7 +38,7 @@ for ch1, ch2 in zip(data[1], data[2]):
     zero_bin = hist_1.GetXaxis().FindBin(0.0)
     sum_1 = 0.0
     sum_2 = 0.0
-    for iBin in range(zero_bin - window_low, zero_bin + window_high):
+    for iBin in range(zero_bin + window_low, zero_bin + window_high):
         sum_1 += hist_1.GetBinContent(iBin)
         sum_2 += hist_2.GetBinContent(iBin)
     int_1.Fill(sum_1)
