@@ -21,6 +21,10 @@ data = { 1 : results.get_data(1), 2 : results.get_data(2) }
 timeform_1 = results.get_meta_data("ch1_timeform")
 timeform_2 = results.get_meta_data("ch2_timeform")
 
+print file_path, "Meta data:"
+print "Trigger:", results.get_meta_data("trigger")
+print "Y Scale:", results.get_meta_data("ch1_YMULT")
+
 ymult = results.get_meta_data("ch1_YMULT")
 #numpy.iinfo("data type").max()
 domain = ( -256.0 * ymult, 256.0 * ymult * (window_high - window_low))

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 #
-# acquire_pmt_data.py
+# acquire_pmt_waveforms.py
 #
-# Acquisition of PMT data from the Sussex setup.
+# Acquisition of PMT waveform data from the Sussex setup.
 # Data is saved to a hdf5 file.
 #
 # Author P G Jones - 2013-09-16 <p.g.jones@qmul.ac.uk> : First revision
@@ -17,16 +17,20 @@ import math
 import logging
 from pyvisa.vpp43 import visa_exceptions
 
-def acquire_pmt_data(name, acquisition_time, trigger, trigger_channel, y_scale, channel_volts):
+def acquire_pmt_waveforms(name, acquisition_time, trigger, trigger_channel, y_scale):
     """ Acquire Sussex PMT data."""
     name = name + "_" + str(datetime.date.today())
     logging.basicConfig(filename=name + ".log", level=logging.DEBUG)
+
     # The minimum trigger level is a 25th of the y_scale
     if math.fabs(trigger) < y_scale / 25.0:
-        trigger = y_scale / 25.0
+        new_trigger = y_scale / 25.0
         if trigger < 0.0:
-            trigger = -trigger
+            trigger = -new_trigger
+        else:
+            trigger = new_trigger
         print "Trigger changed to", trigger
+
     tek_scope = scopes.Tektronix2000(scope_connections.VisaUSB())
     # First setup the scope, lock the front panel
     tek_scope.lock()
@@ -48,10 +52,9 @@ def acquire_pmt_data(name, acquisition_time, trigger, trigger_channel, y_scale, 
     results.add_meta_data("trigger_channel", trigger_channel)
     results.add_meta_data("ch1_timeform", tek_scope.get_timeform(1))
     results.add_meta_data("ch2_timeform", tek_scope.get_timeform(2))
+    results.add_meta_data("y_scale", y_scale)
     results.add_meta_dict(tek_scope.get_preamble(1), "ch1_")
     results.add_meta_dict(tek_scope.get_preamble(2), "ch2_")
-    for index, volt in enumerate(channel_volts):
-        results.add_meta_data("ch%i_volts" % (index + 1), volt)
 
     last_save_time = datetime.datetime.now()
     start_time = datetime.datetime.now()
@@ -89,10 +92,10 @@ def acquire_pmt_data(name, acquisition_time, trigger, trigger_channel, y_scale, 
 if __name__ == "__main__":
     parser = optparse.OptionParser(usage = "usage: %prog name acquisition_time(m) trigger_channel channel_volt [channel_volt]")
     parser.add_option("-t", type="float", dest="trigger", help="Trigger level", default=-0.004)
-    parser.add_option("-y", type="float", dest="ymult", help="Y Mult", default=4e-3)
+    parser.add_option("-y", type="float", dest="y_scale", help="Y Scale", default=100e-3)
     (options, args) = parser.parse_args()
     if len(args) <= 3:
         print "Incorrect number of arguments"
         parser.print_help()
         exit(0)
-    acquire_pmt_data(args[0], int(args[1]) * 60, options.trigger, int(args[2]), options.ymult, args[2:])
+    acquire_pmt_waveforms(args[0], int(args[1]) * 60, options.trigger, int(args[2]), options.y_scale)
