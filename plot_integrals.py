@@ -27,8 +27,6 @@ units = (results.get_meta_data("unit"), "count")
 num_events = 0
 for ch1, ch2 in zip(data[1], data[2]):
     num_events += 1
-    if -ch1 > 1e-8:
-        print "balls"
     int_1.Fill(-ch1)
     int_2.Fill(-ch2)
 

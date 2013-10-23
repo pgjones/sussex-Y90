@@ -27,10 +27,10 @@ print "Y Scale:", results.get_meta_data("ch1_YMULT")
 
 ymult = results.get_meta_data("ch1_YMULT")
 #numpy.iinfo("data type").max()
-domain = ( -256.0 * ymult, 256.0 * ymult * (window_high - window_low))
+domain = ( -256.0 * ymult * 1e-9, 256.0 * ymult * (window_high - window_low) * 1e-9)
 
-int_1 = ROOT.TH1D("int1", "int", 512, domain[0], domain[1])
-int_2 = ROOT.TH1D("int2", "int", 512, domain[0], domain[1])
+int_1 = ROOT.TH1D("int1", "int", 1000, domain[0], domain[1])
+int_2 = ROOT.TH1D("int2", "int", 1000, domain[0], domain[1])
 units = (results.get_meta_data("ch1_YUNIT"), "count")
 
 num_events = 0
@@ -43,8 +43,8 @@ for ch1, ch2 in zip(data[1], data[2]):
     sum_1 = 0.0
     sum_2 = 0.0
     for iBin in range(zero_bin + window_low, zero_bin + window_high):
-        sum_1 += hist_1.GetBinContent(iBin)
-        sum_2 += hist_2.GetBinContent(iBin)
+        sum_1 += hist_1.GetBinContent(iBin) * hist_1.GetBinWidth(iBin)
+        sum_2 += hist_2.GetBinContent(iBin) * hist_2.GetBinWidth(iBin)
     int_1.Fill(sum_1)
     int_2.Fill(sum_2)
 

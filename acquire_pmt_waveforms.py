@@ -20,7 +20,7 @@ from pyvisa.vpp43 import visa_exceptions
 def acquire_pmt_waveforms(name, acquisition_time, trigger, trigger_channel, y_scale):
     """ Acquire Sussex PMT data."""
     name = name + "_" + str(datetime.date.today())
-    logging.basicConfig(filename=name + ".log", level=logging.DEBUG)
+    logging.basicConfig(filename=name + ".log", level=logging.INFO)
 
     # The minimum trigger level is a 25th of the y_scale
     if math.fabs(trigger) < y_scale / 25.0:
