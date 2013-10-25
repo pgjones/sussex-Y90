@@ -69,7 +69,7 @@ def acquire_pmt_integrals(name, acquisition_time, trigger, trigger_channel, y_sc
         tek_scope.acquire()
         num_events += 1
         try:
-            results.add_data(tek_scope.get_measurement(2), 1)
+            results.add_data(tek_scope.get_measurement(1), 1)
             results.add_data(tek_scope.get_measurement(2), 2)
         except visa_exceptions.VisaIOError, e:
             logging.exception("acquire")
