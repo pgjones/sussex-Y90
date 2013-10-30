@@ -29,8 +29,8 @@ ymult = results.get_meta_data("ch1_YMULT")
 #numpy.iinfo("data type").max()
 domain = ( -256.0 * ymult * 1e-9, 256.0 * ymult * (window_high - window_low) * 1e-9)
 
-int_1 = ROOT.TH1D("int1", "int", 1000, domain[0], domain[1])
-int_2 = ROOT.TH1D("int2", "int", 1000, domain[0], domain[1])
+int_1 = ROOT.TH1D("int1", "int", 1000, domain[0], 0.02e-6)
+int_2 = ROOT.TH1D("int2", "int", 1000, domain[0], 0.02e-6)
 units = (results.get_meta_data("ch1_YUNIT"), "count")
 
 num_events = 0
