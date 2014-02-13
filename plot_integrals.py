@@ -17,12 +17,9 @@ results.load()
 data = { 1 : results.get_data(1), 2 : results.get_data(2) }
 
 print file_path, "Meta data:"
-print "Trigger:", results.get_meta_data("trigger")
-print "Y Scale ch1:", results.get_meta_data("ch1_y_scale")
 
-int_1 = ROOT.TH1D("int1", "int", 1000, -2e-8, 2e-8)
-int_2 = ROOT.TH1D("int2", "int", 1000, -2e-8, 2e-8)
-units = (results.get_meta_data("unit"), "count")
+int_1 = ROOT.TH1D("int1", "int", 1000, -12e-8, 2e-8)
+int_2 = ROOT.TH1D("int2", "int", 1000, -12e-8, 2e-8)
 
 num_events = 0
 for ch1, ch2 in zip(data[1], data[2]):

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+	#!/usr/bin/env python
 #
 # acquire_pmt_integrals.py
 #
@@ -17,7 +17,7 @@ import math
 import logging
 from pyvisa.vpp43 import visa_exceptions
 
-def acquire_pmt_integrals(name, acquisition_time, trigger, trigger_channel, y_scale, cursor_low, cursor_high):
+def acquire_pmt_integrals(name, acquisition_time, trigger, trigger_channel, y_scale, cursor_low, cursor_high, probe_gain):
     """ Acquire Sussex PMT data."""
     name = name + "_" + str(datetime.date.today())
     logging.basicConfig(filename=name + ".log", level=logging.INFO)
@@ -44,7 +44,7 @@ def acquire_pmt_integrals(name, acquisition_time, trigger, trigger_channel, y_sc
     tek_scope.set_channel_coupling(2, "ac")
     tek_scope.set_invert_channel(1)
     tek_scope.set_invert_channel(2)
-    tek_scope.set_horizontal_scale(1e-8)
+    tek_scope.set_horizontal_scale(100e-9)
     tek_scope.set_cursors(cursor_low, cursor_high)
     tek_scope.set_measurement("area")
     tek_scope.begin()
@@ -86,8 +86,10 @@ def acquire_pmt_integrals(name, acquisition_time, trigger, trigger_channel, y_sc
             print datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "Acquired %i events, current frequency is %f" % (num_events, tek_scope.get_trigger_frequency())
             heartbeat = datetime.datetime.now()
         if datetime.datetime.now() - last_save_time > datetime.timedelta(minutes=10):
+            results.add_meta_data("acquisition_time", (datetime.datetime.now() - start_time).total_seconds())
             results.autosave()
             last_save_time = datetime.datetime.now()
+    results.add_meta_data("acquisition_time", (datetime.datetime.now() - start_time).total_seconds())
     results.save()
     print "\nFinished at", datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     tek_scope.unlock()

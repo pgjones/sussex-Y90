@@ -18,7 +18,7 @@ results.load()
 data = { 1 : results.get_data(1), 2 : results.get_data(2) }
 timeform_1 = results.get_meta_data("ch1_timeform")
 timeform_2 = results.get_meta_data("ch2_timeform")
-units = (results.get_meta_data("ch1_XUNIT"), results.get_meta_data("ch1_YUNIT"))
+units = ('a','b')#(results.get_meta_data("ch1_XUNIT"), results.get_meta_data("ch1_YUNIT"))
 
 c1 = ROOT.TCanvas()
 
